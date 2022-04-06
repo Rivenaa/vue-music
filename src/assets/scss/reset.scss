@@ -50,6 +50,7 @@ table {
 /* custom */
 a {
   color: #7e8c8d;
+  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   text-decoration: none;
 }

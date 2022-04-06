@@ -19,6 +19,7 @@
     height: 32px;
     margin-right: 9px;
     @include bg-image('logo');
+    background-size: cover;
     block-size: 30px 32px;
   }
   .text {

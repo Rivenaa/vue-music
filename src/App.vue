@@ -1,8 +1,10 @@
 <template>
-  <m-header />
+  <header />
+  <tab />
   <router-view />
 </template>
 <script setup>
-import MHeader from '@/components/m-header/m-header.vue'
+import Header from '@/components/Header'
+import Tab from '@/components/Tab'
 </script>
 <style lang="scss"></style>

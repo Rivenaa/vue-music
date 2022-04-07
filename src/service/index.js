@@ -5,15 +5,19 @@ const service = axios.create({
   timeout: 5000
 })
 
-/* 响应拦截器 */
-service.interceptors.request.use(response => {
-  const data = response.data
-  console.log(response)
-  if (response.code === ERR_OK) {
-    return data.result
-  } else {
-    return Promise.reject(new Error())
-  }
-})
-
-export default service
+const ERR_OK = 0
+export function get(url, params) {
+  return service
+    .get(url, {
+      params
+    })
+    .then(res => {
+      const data = res.data
+      if (data.code === ERR_OK) {
+        return data.result
+      }
+    })
+    .catch(e => {
+      console.log(e)
+    })
+}

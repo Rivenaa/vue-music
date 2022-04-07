@@ -1,8 +1,5 @@
-import service from '@/service'
+import { get } from '@/service'
 
-export const getRecommend = () => {
-  return service({
-    url: '/api/getRecommend',
-    method: 'GET'
-  })
+export function getRecommend() {
+  return get('/getRecommend')
 }

@@ -1,12 +1,12 @@
 <template>
-  <div class="header">
+  <div class="navbar">
     <span class="icon"></span>
     <h1 class="text">Chicken Music</h1>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.header {
+.navbar {
   height: 44px;
   text-align: center;
   color: $color-theme;

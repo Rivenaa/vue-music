@@ -13,8 +13,8 @@ module.exports = defineConfig({
     }
   },
   devServer: {
-    before(app) {
-      registerRouter(app)
+    onBeforeSetupMiddleware(app) {
+      registerRouter(app.app)
     }
   }
 })

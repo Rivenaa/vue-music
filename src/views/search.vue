@@ -2,8 +2,8 @@
   <div>搜索</div>
 </template>
 
-<script>
-export default {}
+<script setup>
+/* import { ref } from 'vue' */
 </script>
 
-<style></style>
+<style lang="scss" scoped></style>

@@ -1,11 +1,18 @@
 import { createApp } from 'vue'
+import loadingDirective from './components/base/Loading/directive'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import lazyPlugin from 'vue3-lazy'
 
-/**
- * 全局导入scss
- */
+/* 全局导入scss */
 import '@/assets/scss/index.scss'
 
-createApp(App).use(store).use(router).mount('#app')
+createApp(App)
+  .use(store)
+  .use(router)
+  .use(lazyPlugin, {
+    loading: require('@/assets/images/default.png')
+  })
+  .directive('loading', loadingDirective)
+  .mount('#app')

@@ -11,6 +11,10 @@ body, html {
   position: relative;
 }
 
+.g-fixed{
+  position: fixed;
+}
+
 .slide-enter-active, .slide-leave-active {
   transition: all 0.3s
 }

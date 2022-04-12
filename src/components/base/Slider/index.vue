@@ -19,30 +19,38 @@
   </div>
 </template>
 
-<script>
-import { ref } from 'vue'
-import useSlider from './use-slider'
+<script setup>
+import BScroll from '@better-scroll/core'
+import Slide from '@better-scroll/slide'
+import { ref, defineProps, onMounted } from 'vue'
 
-export default {
-  name: 'slider',
-  props: {
-    sliders: {
-      type: Array,
-      default() {
-        return []
-      }
-    }
-  },
-  setup() {
-    const rootRef = ref(null)
-    const { currentPageIndex } = useSlider(rootRef)
+BScroll.use(Slide)
 
-    return {
-      rootRef,
-      currentPageIndex
-    }
+defineProps({
+  sliders: {
+    type: Array,
+    required: true
   }
-}
+})
+
+const slider = ref(null)
+const currentPageIndex = ref(0)
+
+onMounted(() => {
+  slider.value = new BScroll(slider.value, {
+    click: true,
+    scrollX: true,
+    scrollY: false,
+    momentum: false,
+    bounce: false,
+    probeType: 2,
+    slide: true
+  })
+
+  slider.value.on('slideWillChange', page => {
+    currentPageIndex.value = page.pageX
+  })
+})
 </script>
 
 <style lang="scss" scoped>

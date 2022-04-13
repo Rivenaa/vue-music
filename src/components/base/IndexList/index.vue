@@ -1,5 +1,5 @@
 <template>
-  <scroll class="index-list" :probeType="3" @scroll="onScroll">
+  <scroll class="index-list" :probeType="3" @scroll="onScroll" ref="scrollRef">
     <ul ref="groupRef">
       <li class="group" v-for="group in data" :key="group.title">
         <h2 class="title">{{ group.title }}</h2>
@@ -14,6 +14,23 @@
     <div class="fixed" v-show="fixedTitle" :style="fixedStyle">
       <div class="fixed-title">{{ fixedTitle }}</div>
     </div>
+    <div
+      class="shortcut"
+      @touchstart.stop.prevent="onShortcutTouchStart"
+      @touchmove.stop.prevent
+    >
+      <ul>
+        <li
+          class="item"
+          v-for="(item, index) in shortcutList"
+          :data-index="index"
+          :key="index"
+          :class="{ current: currentIndex === index }"
+        >
+          {{ item }}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
@@ -26,12 +43,15 @@ const props = defineProps({
     default: () => []
   }
 })
+const scrollRef = ref(null)
 const groupRef = ref(null)
 const scrollY = ref(0)
 const currentIndex = ref(0)
-const listHeights = []
 const distance = ref(0)
+const listHeights = []
 const TITLE_HEIGHT = 30
+console.log(groupRef)
+console.log(scrollRef)
 
 const fixedTitle = computed(() => {
   if (scrollY.value < 0) {
@@ -41,6 +61,7 @@ const fixedTitle = computed(() => {
   return currentGroup ? currentGroup.title : ''
 })
 
+/* 固定标题-向上移动样式 */
 const fixedStyle = computed(() => {
   const distanceVal = distance.value
   const diff =
@@ -49,6 +70,21 @@ const fixedStyle = computed(() => {
       : 0
   return { transform: `translate3d(0,${diff}px,0)` }
 })
+
+/* 快速导航列表 */
+const shortcutList = computed(() => {
+  return props.data.map(group => {
+    return group.title
+  })
+})
+
+/* shortcutList 点击跳转事件 */
+const onShortcutTouchStart = e => {
+  // anchor 锚点
+  const anchorIndex = parseInt(e.target.dataset.index)
+  const targetEl = groupRef.value.children[anchorIndex]
+  scrollRef.value.scrollToElement(targetEl, 0)
+}
 
 watch(
   /* 监听data的变化 */
@@ -142,6 +178,27 @@ const culculate = () => {
       font-size: $font-size-small;
       color: $color-text-l;
       background: $color-highlight-background;
+    }
+  }
+  .shortcut {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    padding: 20px 0;
+    border-radius: 10px;
+    text-align: center;
+    background: $color-background-d;
+    font-family: Helvetica;
+    .item {
+      padding: 3px;
+      line-height: 1;
+      color: $color-text-l;
+      font-size: $font-size-small;
+      &.current {
+        color: $color-theme;
+      }
     }
   }
 }

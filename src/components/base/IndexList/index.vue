@@ -83,7 +83,8 @@ const onShortcutTouchStart = e => {
   // anchor 锚点
   const anchorIndex = parseInt(e.target.dataset.index)
   const targetEl = groupRef.value.children[anchorIndex]
-  scrollRef.value.scrollToElement(targetEl, 0)
+  const scroll = scrollRef.value.scroll.scroll._value
+  scroll.scrollToElement(targetEl, 0)
 }
 
 watch(
@@ -109,10 +110,12 @@ watch(scrollY, newY => {
   }
 })
 
+/* 调用onScroll事件 获取Y值 */
 const onScroll = pos => {
   scrollY.value = -pos.y
 }
 
+/* 计算列表高度 */
 const culculate = () => {
   /* 每个children 对应 groupRef 下的每一个DOM */
   const list = groupRef.value.children

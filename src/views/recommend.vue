@@ -1,16 +1,21 @@
 <template>
-  <div class="recommend" v-loading:[loadingText]="loading">
-    <scroll class="recommend-contant">
+  <div class="recommend" v-loading:[loadingText]="!loading">
+    <Scroll class="recommend-contant">
       <div>
         <div class="slider-wrapper">
           <div class="slider-content">
-            <slider v-if="sliders.length" :sliders="sliders"></slider>
+            <Slider v-if="sliders.length" :sliders="sliders"></Slider>
           </div>
         </div>
         <div class="recommend-list">
-          <h1 class="list-title" v-show="!loading">热门歌单推荐</h1>
+          <h1 class="list-title" v-show="loading">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in albums" :key="item.id" class="item">
+            <li
+              v-for="item in albums"
+              :key="item.id"
+              class="item"
+              @click="selectAlbums(item)"
+            >
               <div class="icon">
                 <img width="60" height="60" v-lazy="item.pic" />
               </div>
@@ -26,38 +31,43 @@
           </ul>
         </div>
       </div>
-    </scroll>
+    </Scroll>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedAlbum"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { getRecommend } from '@/api'
+import { ALBUM_KEY } from '@/assets/js/constant'
+import router from '@/router'
+import storage from 'good-storage'
 import Slider from '@/components/base/Slider'
-import Scroll from '@/components/base/Scroll'
-export default {
-  components: {
-    Slider,
-    Scroll
-  },
-  computed: {
-    loading() {
-      return !this.sliders.length && !this.albums.length
-    }
-  },
-  data() {
-    return {
-      sliders: [],
-      albums: [],
-      loadingText: '正在加载...'
-    }
-  },
-  name: 'recommend',
-  async created() {
-    const result = await getRecommend()
-    this.sliders = result.sliders
-    this.albums = result.albums
-    console.log(result)
-  }
+import Scroll from '@/components/wrap-scroll'
+
+// data
+const sliders = ref([])
+const albums = ref([])
+const selectedAlbum = ref(null)
+const loadingText = ref('正在加载...')
+const loading = computed(() => sliders.value.length && albums.value.length)
+
+// onMounted
+onMounted(async () => {
+  const result = await getRecommend()
+  sliders.value = result.sliders
+  albums.value = result.albums
+})
+
+// methods
+const selectAlbums = album => {
+  storage.session.set(ALBUM_KEY, album)
+  selectedAlbum.value = album
+  router.push(`/album/${album.id}`)
 }
 </script>
 

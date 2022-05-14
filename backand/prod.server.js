@@ -34,9 +34,6 @@ app.use(function (err, req, res, next) {
 
   // handle CSRF token errors here
   res.status(403)
-  res.send(
-    '<p>接口已经被我用 CSRF 保护了，请参考课程用自己的服务器代理接口</p><p>如果你还未购买课程并想学习课程的话，请去慕课网购买<a href="https://coding.imooc.com/class/107.html">正版课程</a>，不仅可以学到很多硬货知识，更有机会加我微信喔~</p><p>课程项目<a href="http://ustbhuangyi.com/music">体验地址</a>'
-  )
 })
 
 module.exports = app.listen(port, function (err) {

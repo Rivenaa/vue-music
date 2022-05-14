@@ -2,6 +2,9 @@
   <div class="navbar">
     <span class="icon"></span>
     <h1 class="text">Chicken Music</h1>
+    <router-link class="mine" to="/user-center">
+      <i class="icon-mine" />
+    </router-link>
   </div>
 </template>
 
@@ -27,6 +30,17 @@
     vertical-align: top;
     line-height: 44px;
     font-size: $font-size-large;
+  }
+  .mine {
+    position: absolute;
+    top: 0;
+    right: 0;
+    .icon-mine {
+      display: block;
+      padding: 12px;
+      font-size: $font-size-large-x;
+      color: $color-theme;
+    }
   }
 }
 </style>

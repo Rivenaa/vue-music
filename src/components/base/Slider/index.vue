@@ -1,5 +1,5 @@
 <template>
-  <div class="slider" ref="slider">
+  <div class="slider" ref="sliderRef">
     <div class="slider-group">
       <div class="slider-page" v-for="item in sliders" :key="item.id">
         <a :href="item.link">
@@ -22,7 +22,14 @@
 <script setup>
 import BScroll from '@better-scroll/core'
 import Slide from '@better-scroll/slide'
-import { ref, defineProps, onMounted } from 'vue'
+import {
+  ref,
+  defineProps,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated
+} from 'vue'
 
 BScroll.use(Slide)
 
@@ -33,11 +40,12 @@ defineProps({
   }
 })
 
+const sliderRef = ref(null)
 const slider = ref(null)
 const currentPageIndex = ref(0)
 
 onMounted(() => {
-  slider.value = new BScroll(slider.value, {
+  slider.value = new BScroll(sliderRef.value, {
     click: true,
     scrollX: true,
     scrollY: false,
@@ -50,6 +58,19 @@ onMounted(() => {
   slider.value.on('slideWillChange', page => {
     currentPageIndex.value = page.pageX
   })
+})
+
+onUnmounted(() => {
+  slider.value.destroy()
+})
+
+onActivated(() => {
+  slider.value.enable()
+  slider.value.refresh()
+})
+
+onDeactivated(() => {
+  slider.value.disable()
 })
 </script>
 

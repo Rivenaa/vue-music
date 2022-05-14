@@ -1,20 +1,34 @@
 <template>
   <div class="singer-cantainer" v-loading="!singers.length">
-    <index-list :data="singers"></index-list>
+    <Index-list @select="selectSinger" :data="singers" />
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedSinger"></component>
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { getSingerList } from '@/api'
-import IndexList from '@/components/base/IndexList'
+import { SINGER_KEY } from '@/assets/js/constant'
+import router from '@/router'
+import storage from 'good-storage'
+import IndexList from '@/components/IndexList'
 
 const singers = ref([])
+const selectedSinger = ref(null)
+
 getSingerList().then(res => {
-  const list = res.singers
-  singers.value = list
-  console.log(list, res)
+  singers.value = res.singers
 })
+
+const selectSinger = singer => {
+  storage.session.set(SINGER_KEY, singer)
+  selectedSinger.value = singer
+  router.push(`/singer-detail/${singer.mid}`)
+}
 </script>
 
 <style lang="scss" scoped>

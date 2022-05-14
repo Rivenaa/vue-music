@@ -1,10 +1,15 @@
 <template>
-  <scroll class="index-list" :probeType="3" @scroll="onScroll" ref="scrollRef">
+  <Scroll class="index-list" :probeType="3" @scroll="onScroll" ref="scrollRef">
     <ul ref="groupRef">
       <li class="group" v-for="group in data" :key="group.title">
         <h2 class="title">{{ group.title }}</h2>
         <ul>
-          <li class="item" v-for="item in group.list" :key="item.id">
+          <li
+            class="item"
+            v-for="item in group.list"
+            :key="item.id"
+            @click="onItemClick(item)"
+          >
             <img class="avatar" v-lazy="item.pic" />
             <span class="name">{{ item.name }}</span>
           </li>
@@ -17,7 +22,8 @@
     <div
       class="shortcut"
       @touchstart.stop.prevent="onShortcutTouchStart"
-      @touchmove.stop.prevent
+      @touchmove.stop.prevent="onShortcutTouchMove"
+      @touchend.stop.prevent
     >
       <ul>
         <li
@@ -31,61 +37,34 @@
         </li>
       </ul>
     </div>
-  </scroll>
+  </Scroll>
 </template>
 
 <script setup>
-import scroll from '@/components/base/Scroll'
-import { ref, watch, computed, nextTick, defineProps } from 'vue'
+import Scroll from '@/components/wrap-scroll'
+import {
+  ref,
+  watch,
+  computed,
+  nextTick,
+  defineProps,
+  defineEmits,
+  defineExpose
+} from 'vue'
+
 const props = defineProps({
   data: {
     type: Array,
     default: () => []
   }
 })
+const emits = defineEmits(['select'])
 const scrollRef = ref(null)
 const groupRef = ref(null)
 const scrollY = ref(0)
 const currentIndex = ref(0)
-const distance = ref(0)
+const distance = ref(0) // distance 距离
 const listHeights = []
-const TITLE_HEIGHT = 30
-console.log(groupRef)
-console.log(scrollRef)
-
-const fixedTitle = computed(() => {
-  if (scrollY.value < 0) {
-    return ''
-  }
-  const currentGroup = props.data[currentIndex.value]
-  return currentGroup ? currentGroup.title : ''
-})
-
-/* 固定标题-向上移动样式 */
-const fixedStyle = computed(() => {
-  const distanceVal = distance.value
-  const diff =
-    distanceVal > 0 && distanceVal < TITLE_HEIGHT
-      ? distanceVal - TITLE_HEIGHT
-      : 0
-  return { transform: `translate3d(0,${diff}px,0)` }
-})
-
-/* 快速导航列表 */
-const shortcutList = computed(() => {
-  return props.data.map(group => {
-    return group.title
-  })
-})
-
-/* shortcutList 点击跳转事件 */
-const onShortcutTouchStart = e => {
-  // anchor 锚点
-  const anchorIndex = parseInt(e.target.dataset.index)
-  const targetEl = groupRef.value.children[anchorIndex]
-  const scroll = scrollRef.value.scroll.scroll._value
-  scroll.scrollToElement(targetEl, 0)
-}
 
 watch(
   /* 监听data的变化 */
@@ -131,8 +110,72 @@ const culculate = () => {
     height += list[i].clientHeight
     listHeights.push(height)
   }
-  console.log('listHeights', listHeights)
 }
+
+/* 固定标题-文本 */
+const fixedTitle = computed(() => {
+  if (scrollY.value < 0) {
+    return ''
+  }
+  const currentGroup = props.data[currentIndex.value]
+  return currentGroup ? currentGroup.title : ''
+})
+
+/* 固定标题-向上移动样式 */
+const TITLE_HEIGHT = 30
+
+const fixedStyle = computed(() => {
+  const distanceVal = distance.value
+  const diff =
+    distanceVal > 0 && distanceVal < TITLE_HEIGHT
+      ? distanceVal - TITLE_HEIGHT
+      : 0
+  return { transform: `translate3d(0,${diff}px,0)` }
+})
+
+/* shortcutList */
+const ANCHOR_HEIGHT = 18
+const touch = { pageY: 0, anchorIndex: 0 }
+
+/* 快速导航列表 */
+const shortcutList = computed(() => {
+  return props.data.map(group => {
+    return group.title
+  })
+})
+
+/* shortcutList 触摸点击事件 */
+const onShortcutTouchStart = e => {
+  // anchor 锚点
+  const anchorIndex = parseInt(e.target.dataset.index)
+
+  touch.pageY = e.touches[0].pageY
+  touch.anchorIndex = anchorIndex
+
+  scrollTo(anchorIndex)
+}
+
+/* shortcutList 触摸移动事件 */
+const onShortcutTouchMove = e => {
+  const delta = ((e.touches[0].pageY - touch.pageY) / ANCHOR_HEIGHT) | 0
+  const anchorIndex = touch.anchorIndex + delta
+
+  scrollTo(anchorIndex)
+}
+
+/* 调用scrollToElement方法 */
+const scrollTo = index => {
+  if (isNaN(index)) return
+  index = Math.max(0, Math.min(shortcutList.value.length - 1, index))
+  const targetEl = groupRef.value.children[index]
+  scrollRef.value.scroll.scrollToElement(targetEl, 0)
+}
+
+const onItemClick = item => {
+  emits('select', item)
+}
+
+defineExpose({ onItemClick })
 </script>
 
 <style lang="scss" scoped>
@@ -142,7 +185,6 @@ const culculate = () => {
   height: 100%;
   overflow: hidden;
   background: $color-background;
-
   .group {
     padding-bottom: 30px;
     .title {
